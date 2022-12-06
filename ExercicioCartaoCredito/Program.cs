@@ -1,4 +1,6 @@
-﻿var builder = WebApplication.CreateBuilder(args);
+﻿using System.Text.RegularExpressions;
+
+var builder = WebApplication.CreateBuilder(args);
 var app = builder.Build();
 
 DateOnly validade = new DateOnly(DateOnly.FromDateTime(DateTime.Today).Year + 6, DateOnly.FromDateTime(DateTime.Today).Month, DateOnly.FromDateTime(DateTime.Today).Day);
@@ -13,7 +15,7 @@ cartao1.gastar("Carro Novo", 5000.0);
 cartao1.pagarCredito(50000.0);
 cartao1.gastar("Carro Novo", 3500.0);
 
-CartaoCredito cartao2 = new CartaoCredito("Maria Pedro", 140000123012, validade, 500.0);
+CartaoCredito cartao2 = new CartaoCredito("Maria Pedro", 120000123012, validade, 500.0);
 
 cartao2.gastar("Supermercado", 150.0);
 cartao2.gastar("Seguros", 150.0);
@@ -46,7 +48,15 @@ class CartaoCredito {
        double maximoAutorizado) {
 
         this.titular = titular;
-        this.numeroConta = numeroConta;
+
+        if (Regex.Matches("" + numeroConta, @"[0-9]{12}").Count > 0)
+        {
+            this.numeroConta = numeroConta;
+        }
+        else
+        {
+            throw new Exception("Numero de conta inválido.");
+        }
         this.validade = validade;
         this.maximoAutorizado = maximoAutorizado;
 
@@ -163,7 +173,15 @@ class Carteira
 
         this.nome = nome;
         this.morada = morada;
-        this.contacto = contacto;
+        if (Regex.Matches(contacto,@"9[1236][0-9]{7}|2[1-9][0-9]{7}|707[0-9]{6}|808[0-9]{6}|800[0-9]{6}").Count > 0)
+        {
+            this.contacto = contacto;
+        }
+        else
+        {
+            //Lança um erro
+            throw new Exception("Erro: Contacto Inválido");
+        }
 
     }
 
