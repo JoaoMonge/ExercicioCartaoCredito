@@ -13,8 +13,19 @@ cartao1.gastar("Carro Novo", 5000.0);
 cartao1.pagarCredito(50000.0);
 cartao1.gastar("Carro Novo", 3500.0);
 
+CartaoCredito cartao2 = new CartaoCredito("Maria Pedro", 140000123012, validade, 500.0);
 
-app.MapGet("/", () =>"Movimentos:\n"+ cartao1.obterTalao());
+cartao2.gastar("Supermercado", 150.0);
+cartao2.gastar("Seguros", 150.0);
+cartao2.gastar("Contas", 250.0);
+
+Carteira cart = new Carteira("Familia Pedro", "Rua x", "913213213");
+cart.addCard(cartao1);
+cart.addCard(cartao2);
+
+
+
+app.MapGet("/", () => cart.toString());
 
 app.Run();
 
@@ -27,6 +38,8 @@ class CartaoCredito {
     private double montanteGasto = 0.0;
 
     private List<String> movimentos = new List<String>();
+
+  
 
     public CartaoCredito(String titular,
         long numeroConta, DateOnly validade,
@@ -101,5 +114,134 @@ class CartaoCredito {
         return dados;
     }
 
+    public override bool Equals(object? obj)
+    {
+        return obj is CartaoCredito credito &&
+               numeroConta == credito.numeroConta;
+    }
 
+    public double MontanteGasto { get => montanteGasto; }
+
+}
+
+/*
+ 
+ 2. Considere agora que se pretende reproduzir a estrutura de uma carteira com espaço para cartões
+A carteira deve ter dados sobre o dono (nome, morada, número de telefone), assim como os cartões que​ ​ele​ ​p
+ossui.​
+Crie​ ​a​ ​classe​ ​​Carteira​,​ ​onde​ ​deve​ ​ser​ ​possível​ ​efetuar​ ​o​ ​seguinte:
+
+●  Guardar​ ​mais​ ​um​ ​cartão;
+
+●  Listar​ ​todos​ ​os​ ​cartões​ ​existentes;
+
+●  Retirar um cartão da carteira, com base no seu número
+
+   Atenção que tal só deverá ser possível​ ​caso​ ​o​ ​montante​ ​em​ ​dívida​ ​no​ ​cartão​ ​seja​ ​igual​ ​a​ ​zero;
+
+●  Determinar​ ​quantos​ ​cartões​ ​estão​ ​na​ ​carteira;
+
+●  Determinar​ ​o​ ​montante​ ​em​ ​dívida​ ​na​ ​carteira;
+
+●  Devolver,​ ​sob​ ​a​ ​forma​ ​de​ ​String,​ ​todos​ ​os​ ​movimentos​ ​de​ ​cartões​ ​atualmente​ ​na​ ​carteira;
+
+●  Representar uma carteira sob a forma de String (com informações sobre a carteira e também​ ​sobre​ ​os​ ​cartões​ ​e​ ​respetivo​ ​saldo​ ​devedor).
+
+
+ */
+class Carteira
+{
+    String nome;
+    String morada;
+    String contacto;
+
+
+    List<CartaoCredito> cartoes = new List<CartaoCredito>();
+
+
+    public Carteira(String nome, String morada, String contacto) {
+
+        this.nome = nome;
+        this.morada = morada;
+        this.contacto = contacto;
+
+    }
+
+    public void addCard(CartaoCredito card)
+    {
+        cartoes.Add(card);
+    }
+
+    public void removeCard(long numeroCartao) {
+        
+        CartaoCredito toRemove = null;
+        foreach (CartaoCredito c in cartoes)
+        {
+            CartaoCredito tmp = new CartaoCredito("", numeroCartao, new DateOnly(), 0.0);
+            if (c.Equals(tmp) ) {
+                 toRemove = c;
+                 break;
+            }
+        }
+        if (toRemove != null)
+        {
+            if (toRemove.MontanteGasto <= 0) {
+                cartoes.Remove(toRemove);
+            }
+            else
+            {
+                Console.WriteLine("Liquide o montante em divida primeiro.");
+            }
+        }
+        else {
+            Console.WriteLine("Não encontrado!!");
+        }
+      
+    }
+
+    public int quantidadeCartoes()
+    {
+        return this.cartoes.Count;
+    }
+
+    public double montanteEmDivida()
+    {
+        double divida = 0.0;
+
+        foreach(CartaoCredito c in this.cartoes)
+        {
+            divida += c.MontanteGasto;
+        }
+
+        return divida;
+    }
+
+    public String movimentos()
+    {
+        String movs = "";
+
+        foreach(CartaoCredito c in this.cartoes)
+        {
+
+            movs += c.getMovimentos();
+        }
+
+        return movs;
+    }
+
+    public String toString()
+    {
+        String dados = "DADOS:\nNome: " + nome + "\nMorada: " + morada + "\nContacto: " + contacto + "\n";
+        String cartoes = "\nCARTÕES:\n";
+
+        foreach(CartaoCredito c in this.cartoes)
+        {
+            cartoes += c.toString();
+        }
+
+        String divida = "\nDIVIDA:\n" + montanteEmDivida() + "€";
+
+        return dados + cartoes + divida;
+
+    }
 }
